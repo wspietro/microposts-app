@@ -1,9 +1,22 @@
 class UsersController < ApplicationController
+  # before_action :check_autorization, only: [:show]
   before_action :set_user, only: %i[ show edit update destroy ]
+  
 
   # GET /users or /users.json
   def index
-    @users = User.all
+    @users = User.all # instance variables starts with @ and are available in the view
+
+    # responde json direto
+    # render(json: { users: @users.as_json(only: [:name]), abacate: [1,2,3], very_nice: true })
+    
+    # responde ao formato solicitado da página
+    # /users -> html
+    # /users.json -> json
+    respond_to do |format|
+      format.html
+      format.json { render(json: { users: @users.as_json(only: [:name]), abacate: [1,2,3], very_nice: true }) }
+    end
   end
 
   # GET /users/1 or /users/1.json
@@ -66,5 +79,9 @@ class UsersController < ApplicationController
     # Only allow a list of trusted parameters through.
     def user_params
       params.require(:user).permit(:name, :email)
+    end
+
+    def check_autorization
+      render(plain: 'Não autorizado', status: :unauthorized) if params[:id].to_i == 3
     end
 end
